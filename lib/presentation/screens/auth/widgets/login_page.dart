@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../data/data_source.dart';
 import '../../common/utils/size_config.dart';
 import '../../common/widgets/common_container.dart';
 import '../../common/widgets/common_text_form_field.dart';
 import '../../dashboard/pages/dashboard_screen.dart';
-
-
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -102,7 +101,7 @@ class _LoginFormState extends State<LoginForm> {
             onPressed: () async {
               if (!otpSent) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Please send OTP first"),duration: Duration(seconds: 1)),
+                  const SnackBar(content: Text("Please send OTP first"), duration: Duration(seconds: 1)),
                 );
                 return;
               }
@@ -110,8 +109,7 @@ class _LoginFormState extends State<LoginForm> {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (context) =>
-                  const Center(child: CircularProgressIndicator()),
+                  builder: (context) => const Center(child: CircularProgressIndicator()),
                 );
 
                 try {
@@ -122,21 +120,27 @@ class _LoginFormState extends State<LoginForm> {
                   Navigator.pop(context);
 
                   if (response.success == true) {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('isLoggedIn', true);
+
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(response.message ?? "Login successful"),duration: Duration(seconds: 1)));
+                      SnackBar(content: Text(response.message ?? "Login successful"), duration: const Duration(seconds: 1)),
+                    );
+
                     Get.offAll(() => const DashboardScreen());
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(response.message ?? "Failed to login"),duration: Duration(seconds: 1)));
+                      SnackBar(content: Text(response.message ?? "Failed to login"), duration: const Duration(seconds: 1)),
+                    );
                   }
                 } catch (e) {
                   Navigator.pop(context); // Remove loading
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Error: $e"),duration: Duration(seconds: 1),));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error: $e"), duration: const Duration(seconds: 1)),
+                  );
                 }
               }
             },
-
           ),
           Padding( padding: const EdgeInsets.symmetric(vertical: 30),
               child: Center(
@@ -149,4 +153,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

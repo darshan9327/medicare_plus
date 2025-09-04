@@ -8,5 +8,3 @@ void main() {
   Get.put(CartController(), permanent: true);
   runApp(const MyApp());
 }
-
-

@@ -112,8 +112,18 @@ class DataSource {
   //===================== Search Product =====================//
 
   Future<SearchProductModel> searchProducts({required String query}) async {
+    if (query.isEmpty) {
+      throw Exception("Search query cannot be empty");
+    }
+
     try {
-      final response = await dio.get('/api/v1/products/search', queryParameters: {'q': query, 'limit': 10});
+      final response = await dio.get(
+        '/api/v1/products/search',
+        queryParameters: {'q': query, 'limit': 10},
+      );
+
+      print("Status: ${response.statusCode}");
+      print("Data: ${response.data}");
 
       return SearchProductModel.fromJson(response.data);
     } catch (e) {

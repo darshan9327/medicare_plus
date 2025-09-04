@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/product_models/all_product.dart';
 import '../../../../data/data_source.dart';
+import '../../product/pages/product_details_screen.dart';
+import 'medicine_list.dart';
 
 
 class AllMedicines extends StatefulWidget {
@@ -37,20 +39,13 @@ class _AllMedicinesState extends State<AllMedicines> {
           }
           final medicines = snapshot.data!.data!;
           medicines.sort((a, b) => (a.name ?? "").toLowerCase().compareTo((b.name ?? "").toLowerCase()));
-
-          return ListView.builder(
-            itemCount: medicines.length,
-            itemBuilder: (context, index) {
-              final medicine = medicines[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: ListTile(
-                  leading: const Icon(Icons.medical_services, color: Colors.blue),
-                  title: Text(medicine.name ?? "Unknown"),
-                  subtitle: Text("₹${medicine.price ?? '--'} • ${medicine.category ?? ''}"),
-                  onTap: () {
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => MedicineDetailPage(id: medicine.id!)));
-                  },
+          return MedicineList(
+            medicines: medicines,
+            onTap: (medicine) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductDetailPage(productId: medicine.id!),
                 ),
               );
             },

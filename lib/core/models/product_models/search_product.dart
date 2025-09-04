@@ -35,7 +35,7 @@ class Data {
   String? name;
   String? price;
   String? category;
-  Null imageUrl;
+  String? imageUrl;
 
   Data({this.id, this.name, this.price, this.category, this.imageUrl});
 

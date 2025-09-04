@@ -1,26 +1,11 @@
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import '../../../../core/models/product_models/search_product.dart';
+import '../../../../data/data_source.dart';
+import '../../product/pages/product_details_screen.dart';
 import '../widgets/filter_button.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/search_result_tile.dart';
-
-class Medicine {
-  final String name;
-  final String company;
-  final double price;
-  final bool prescriptionRequired;
-  final String emoji;
-  final String description;
-
-  Medicine({
-    required this.name,
-    required this.company,
-    required this.price,
-    required this.prescriptionRequired,
-    required this.emoji,
-    required this.description,
-  });
-}
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -30,57 +15,54 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final List<Medicine> medicines = [
-    Medicine(
-      name: "Paracetamol 500mg",
-      company: "Cipla Ltd.",
-      price: 45.00,
-      emoji: '💊',
-      description: 'Used for fever and mild pain relief',
-      prescriptionRequired: false,
-    ),
-    Medicine(
-      name: "Dolo 650mg",
-      company: "Micro Labs",
-      price: 32.50,
-      emoji: '💊',
-      description: 'Stronger dose for fever and pain.',
-      prescriptionRequired: true,
-    ),
-    Medicine(
-      name: "Cal-pol 500mg",
-      company: "GSK",
-      price: 28.00,
-      emoji: '💊',
-      description: 'Relieves fever, headache, mild pain such as body pain, toothache, cramps.',
-      prescriptionRequired: false,
-    ),
-    Medicine(
-      name: "Azithromycin 250mg",
-      company: "Sun Pharma",
-      price: 120.00,
-      emoji: '💊',
-      description: 'Antibiotic used to treat bacterial infections like respiratory infections.',
-      prescriptionRequired: true,
-    ),
-  ];
+  final DataSource _api = DataSource();
 
   String searchQuery = "";
   String filter = "All";
 
+  List<Data> _results = [];
+  bool _isLoading = false;
+  String _error = "";
+
+  Future<void> _searchProducts(String query) async {
+    if (query.isEmpty || query.length < 2) {
+      setState(() {
+        _results = [];
+        _error = "";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _error = "";
+    });
+
+    try {
+      final response = await _api.searchProducts(query: query);
+      setState(() {
+        _results = response.data ?? [];
+      });
+    } catch (e) {
+      setState(() {
+        _error = "Failed to load products: $e";
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Medicine> filteredList =
-    medicines.where((med) {
-      final matchesSearch = med.name.toLowerCase().contains(searchQuery.toLowerCase());
-
-      final matchesFilter =
-      filter == "All"
+    final filteredList = _results.where((med) {
+      final matchesSearch = med.name?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false;
+      final matchesFilter = filter == "All"
           ? true
           : filter == "OTC"
-          ? !med.prescriptionRequired
-          : med.prescriptionRequired;
-
+          ? !(med.category?.toLowerCase().contains("prescription") ?? false)
+          : (med.category?.toLowerCase().contains("prescription") ?? false);
       return matchesSearch && matchesFilter;
     }).toList();
 
@@ -93,14 +75,18 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 🔍 Search Input
               SearchBarWidget(
                 onChanged: (value) {
                   setState(() {
                     searchQuery = value;
                   });
+                  _searchProducts(value); // live search
                 },
               ),
               const SizedBox(height: 12),
+
+              // 🏷 Filter Buttons
               Row(
                 children: [
                   FilterButton(label: "All", selected: filter == "All", onTap: () => setState(() => filter = "All")),
@@ -111,14 +97,33 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text("${filteredList.length} results found", style: const TextStyle(color: Colors.grey)),
+
+              // Result Count
+              if (!_isLoading && _results.isNotEmpty)
+                Text("${filteredList.length} results found", style: const TextStyle(color: Colors.grey)),
+
               const SizedBox(height: 12),
+
+              // 📋 Results / Loading / Error
               Expanded(
-                child: ListView.builder(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _error.isNotEmpty
+                    ? Center(child: Text(_error, style: const TextStyle(color: Colors.red)))
+                    : filteredList.isEmpty
+                    ? const Center(child: Text("No products found"))
+                    : ListView.builder(
                   itemCount: filteredList.length,
                   itemBuilder: (context, index) {
-                    final med = filteredList[index];
-                    return SearchResultTile(medicine: med);
+                    final product = filteredList[index];
+                    return SearchResultTile(
+                      medicine: product,
+                      onTap: () {
+                        if (product.id != null) {
+                          Get.to(() => ProductDetailPage(productId: product.id!));
+                        }
+                      },
+                    );
                   },
                 ),
               ),

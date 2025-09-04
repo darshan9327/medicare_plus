@@ -8,6 +8,7 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      onChanged: onChanged,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.search, color: Colors.blue),
         hintText: "Search medicine...",
