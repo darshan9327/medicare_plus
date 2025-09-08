@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/session_manager.dart';
 import '../../addresses/pages/my_address_screen.dart';
 import '../../auth/pages/login_signup_screen.dart';
 import '../../common/utils/size_config.dart';
@@ -43,7 +44,9 @@ class ProfilePage extends StatelessWidget {
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
-                  Get.offAll(() => LoginSignupScreen());
+                  await SessionManager.clearSessionId();
+                  Get.offAll(LoginSignupScreen);
+
                 },
               ),
             ],

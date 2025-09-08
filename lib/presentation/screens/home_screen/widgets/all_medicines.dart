@@ -20,7 +20,7 @@ class _AllMedicinesState extends State<AllMedicines> {
   @override
   void initState() {
     super.initState();
-    allMedicines = api.getAllProducts(limit: 50);
+    allMedicines = api.getAllProducts(limit: 80);
   }
 
   @override

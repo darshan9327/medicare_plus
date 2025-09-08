@@ -56,7 +56,7 @@ class ProductActionButtons extends StatelessWidget {
           text: isInCart ? "Remove from Cart" : "Add to Cart",
           onPressed: () {
             if (isInCart) {
-              cartController.removeFromCartByName(product.name ?? "");
+              // cartController.removeFromCart();
               onCartToggle(false);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("${product.name} removed from cart")),

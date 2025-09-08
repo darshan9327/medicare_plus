@@ -54,8 +54,6 @@ class _UploadPrescriptionState extends State<UploadPrescription> {
 
   @override
   Widget build(BuildContext context) {
-    // final product = widget.product;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CommonAppBar(title: "Upload Prescription - "),
