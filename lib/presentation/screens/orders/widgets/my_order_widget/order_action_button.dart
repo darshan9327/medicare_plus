@@ -4,8 +4,15 @@ class OrderActionButton extends StatelessWidget {
   final String text;
   final Color color;
   final bool isOutlined;
+  final VoidCallback? onPressed; // Added this
 
-  const OrderActionButton({super.key, required this.text, required this.color, this.isOutlined = false});
+  const OrderActionButton({
+    super.key,
+    required this.text,
+    required this.color,
+    this.isOutlined = false,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +24,7 @@ class OrderActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      onPressed: () {
-        debugPrint("$text clicked");
-      },
+      onPressed: onPressed ?? () => debugPrint("$text clicked"), // Use callback if provided
       child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
     );
   }

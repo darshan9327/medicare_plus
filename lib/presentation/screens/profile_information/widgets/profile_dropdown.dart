@@ -5,7 +5,7 @@ class ProfileDropdown extends StatelessWidget {
   final IconData icon;
   final String value;
   final List<String> items;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   const ProfileDropdown({super.key, required this.label, required this.icon, required this.value, required this.items, required this.onChanged});
 

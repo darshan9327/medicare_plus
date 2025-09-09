@@ -50,7 +50,6 @@ class _ShoppingCartState extends State<ShoppingCart> {
               if (cartController.isLoading.value) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

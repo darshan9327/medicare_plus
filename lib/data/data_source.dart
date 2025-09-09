@@ -2,6 +2,9 @@ import 'package:dio/dio.dart';
 
 import '../core/api_constants.dart';
 import '../core/models/cart_models/clear_cart.dart';
+import '../core/models/user_models/get_user_by_id.dart';
+import '../core/models/user_models/get_user_orders.dart';
+import '../core/models/user_models/update_user.dart';
 import '../core/session_manager.dart';
 import '../core/models/authentication_models/login.dart';
 import '../core/models/authentication_models/register.dart';
@@ -20,7 +23,13 @@ class DataSource {
   late final Dio dio;
 
   DataSource() {
-    dio = Dio(BaseOptions(baseUrl: ApiConstants.baseurl));
+    dio = Dio(
+        BaseOptions(
+        baseUrl: ApiConstants.baseurl,
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20)
+        )
+    );
 
     dio.interceptors.add(
       InterceptorsWrapper(
@@ -262,4 +271,71 @@ class DataSource {
     }
   }
 
+  // ===================== RemoveFromCart =====================//
+
+  Future<UserResponse> getUser(int userId) async {
+    try {
+      final response = await dio.get("/api/v1/users/$userId");
+      return UserResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception("Failed to fetch user: $e");
+    }
+  }
+
+  // ===================== RemoveFromCart =====================//
+
+  Future<UpdateUserResponse> updateUser({
+    required int id,
+    String? phone,
+    String? name,
+    String? email,
+    String? address,
+  }) async {
+    try {
+      final response = await dio.put(
+        "/api/v1/users/$id",
+        data: {
+          "phone": phone,
+          "name": name,
+          "email": email,
+          "address": address,
+        },
+      );
+
+      return UpdateUserResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception("Failed to update user: $e");
+    }
+  }
+
+  // ===================== RemoveFromCart =====================//
+
+  Future<OrdersResponse> getOrders({int page = 1, int limit = 10}) async {
+    try {
+      final response = await dio.get('/api/v1/users/', queryParameters: {
+        "page": page,
+        "limit": limit,
+      });
+
+      return OrdersResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception("Failed to fetch orders: $e");
+    }
+  }
+
+  /// Get single order by ID
+  Future<Order> getOrderById(int orderId) async {
+    try {
+      final response = await dio.get('/api/v1/users/$orderId');
+      final ordersResponse = OrdersResponse.fromJson(response.data);
+      if (ordersResponse.success && ordersResponse.data != null) {
+        return ordersResponse.data!.orders.firstWhere((o) => o.id == orderId);
+      } else {
+        throw Exception("Order not found");
+      }
+    } catch (e) {
+      throw Exception("Failed to fetch order: $e");
+    }
+  }
 }
+

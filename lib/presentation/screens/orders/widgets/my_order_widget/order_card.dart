@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../pages/my_orders_screen.dart';
+import '../../../../../core/models/user_models/get_user_orders.dart';
 import 'order_action_button.dart';
 
 class OrderCard extends StatelessWidget {
@@ -10,63 +9,93 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color statusColor;
-    switch (order.status) {
-      case "Processing":
+    switch (order.status.toLowerCase()) {
+      case "processing":
         statusColor = Colors.blue;
         break;
-      case "Pending":
+      case "pending":
         statusColor = Colors.orange;
         break;
-      case "Completed":
+      case "completed":
         statusColor = Colors.green;
         break;
       default:
         statusColor = Colors.grey;
     }
 
+    String productList = order.items.map((item) => "Product ID: ${item.productId}").join(", ");
+
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.15), blurRadius: 8)],
+          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.15), blurRadius: 8)],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Order ID & Status
             Row(
               children: [
-                Text(order.id, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("#ORD${order.id}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Text(order.status, style: TextStyle(color: statusColor, fontWeight: FontWeight.w500, fontSize: 12)),
                 ),
               ],
             ),
             const SizedBox(height: 5),
-            Text(order.status == "Completed" ? "Delivered on ${order.date}" : "Placed on ${order.date}", style: const TextStyle(color: Colors.grey)),
+            Text(
+              order.status.toLowerCase() == "completed" ? "Delivered on ${order.createdAt}" : "Placed on ${order.createdAt}",
+              style: const TextStyle(color: Colors.grey),
+            ),
 
             const SizedBox(height: 16),
+            // Items & Price
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("${order.itemCount} items", style: const TextStyle(fontWeight: FontWeight.w500)),
-                Text(order.price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("${order.items.length} items", style: const TextStyle(fontWeight: FontWeight.w500)),
+                Text("₹${order.total}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
             const SizedBox(height: 5),
-            Text(order.products, style: const TextStyle(color: Colors.black87)),
+            Text(productList, style: const TextStyle(color: Colors.black87)),
+
             const SizedBox(height: 16),
+            // Action Buttons
             Row(
               children: [
-                Expanded(child: OrderActionButton(text: "View Details", color: Colors.blue, isOutlined: true)),
-                if (order.status == "Completed") const SizedBox(width: 10),
-                if (order.status == "Completed") Expanded(child: OrderActionButton(text: "Reorder", color: Colors.blue, isOutlined: true)),
+                Expanded(
+                  child: OrderActionButton(
+                    text: "View Details",
+                    color: Colors.blue,
+                    isOutlined: true,
+                    onPressed: () {
+                      // TODO: Navigate to order detail screen
+                    },
+                  ),
+                ),
+                if (order.status.toLowerCase() == "completed") const SizedBox(width: 10),
+                if (order.status.toLowerCase() == "completed")
+                  Expanded(
+                    child: OrderActionButton(
+                      text: "Reorder",
+                      color: Colors.blue,
+                      isOutlined: true,
+                      onPressed: () {
+                        // TODO: Add reorder functionality
+                      },
+                    ),
+                  ),
               ],
             ),
           ],

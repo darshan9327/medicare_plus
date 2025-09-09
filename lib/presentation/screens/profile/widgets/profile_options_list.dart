@@ -5,6 +5,7 @@ import 'profile_option_tile.dart';
 class ProfileOptionsList extends StatelessWidget {
   final VoidCallback onPersonalInfo;
   final VoidCallback onAddresses;
+  final VoidCallback onOrders;
   final VoidCallback onPrescriptions;
   final VoidCallback onNotifications;
   final VoidCallback onHelpSupport;
@@ -13,6 +14,7 @@ class ProfileOptionsList extends StatelessWidget {
     super.key,
     required this.onPersonalInfo,
     required this.onAddresses,
+    required this.onOrders,
     required this.onPrescriptions,
     required this.onNotifications,
     required this.onHelpSupport,
@@ -33,6 +35,8 @@ class ProfileOptionsList extends StatelessWidget {
           ProfileOptionTile(iconEmoji: '👤', title: "Personal Information", subtitle: "Name, Email, Phone", onTap: onPersonalInfo),
           _divider(),
           ProfileOptionTile(iconEmoji: '📍', title: "My Addresses", subtitle: "Manage delivery addresses", onTap: onAddresses),
+          _divider(),
+          ProfileOptionTile(iconEmoji: '📋', title: "My Orders", subtitle: "Manage Order Status", onTap: onOrders),
           _divider(),
           ProfileOptionTile(iconEmoji: '📋', title: "My Prescriptions", subtitle: "Uploaded prescriptions", onTap: onPrescriptions),
           _divider(),

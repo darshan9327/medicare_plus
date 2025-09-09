@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medicare_plus/presentation/screens/common/utils/size_config.dart';
 
-import '../auth/pages/login_signup_screen.dart';
 import '../cart/pages/cart_screen.dart';
-import '../common/utils/size_config.dart';
 import '../dashboard/pages/dashboard_screen.dart';
 import '../splash/page/splash_screen.dart';
+
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -24,7 +27,6 @@ class MyApp extends StatelessWidget {
         GetPage(name: "/SplashScreen", page: () => const SplashScreen()),
         GetPage(name: "/DashboardScreen", page: () => const DashboardScreen()),
         GetPage(name: "/ShoppingCart", page: () => const ShoppingCart()),
-        // GetPage(name: "/LoginSignupScreen", page: () => const LoginSignupScreen()),
       ],
     );
   }

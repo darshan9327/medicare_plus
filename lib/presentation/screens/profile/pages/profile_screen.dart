@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medicare_plus/presentation/screens/orders/pages/my_orders_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/session_manager.dart';
@@ -32,6 +33,7 @@ class ProfilePage extends StatelessWidget {
               ProfileOptionsList(
                 onPersonalInfo: () => Get.to(ProfileInformation()),
                 onAddresses: () => Get.to(MyAddressesScreen()),
+                onOrders: () => Get.to(MyOrders()),
                 onPrescriptions: () => Get.to(MyPrescriptionsScreen()),
                 onNotifications: () => Get.to(NotificationsPage()),
                 onHelpSupport: () => Get.to(HelpSupportScreen()),
