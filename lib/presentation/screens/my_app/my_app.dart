@@ -4,6 +4,7 @@ import 'package:medicare_plus/presentation/screens/common/utils/size_config.dart
 
 import '../cart/pages/cart_screen.dart';
 import '../dashboard/pages/dashboard_screen.dart';
+import '../orders/pages/order_detail_screen.dart';
 import '../splash/page/splash_screen.dart';
 
 void main() {
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: "/SplashScreen", page: () => const SplashScreen()),
         GetPage(name: "/DashboardScreen", page: () => const DashboardScreen()),
         GetPage(name: "/ShoppingCart", page: () => const ShoppingCart()),
+        GetPage(name: "/GetOrderById", page: () => const OrderDetailsScreen(orderId: 22)),
       ],
     );
   }

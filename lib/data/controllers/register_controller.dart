@@ -9,8 +9,7 @@ class RegisterController extends GetxController {
 
   var isLoading = false.obs;
 
-  /// Return bool instead of void
-  Future<bool> registerUser({required String name, required String phone, required String email, required String password}) async {
+  Future<bool> registerUser({required String name, required String phone, required String email, required String password, required String address}) async {
     try {
       isLoading.value = true;
 
@@ -21,10 +20,10 @@ class RegisterController extends GetxController {
         await prefs.setBool("isLoggedIn", true);
         await prefs.setString("token", result.data?.token ?? "");
 
-        return true; // ✅ success
+        return true;
       } else {
         Get.snackbar("Error", result.message ?? "Signup failed ❌", snackPosition: SnackPosition.BOTTOM);
-        return false; // ✅ failed
+        return false;
       }
     } catch (e) {
       Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);

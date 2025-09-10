@@ -1,23 +1,30 @@
 import 'package:dio/dio.dart';
 
 import '../core/api_constants.dart';
-import '../core/models/cart_models/clear_cart.dart';
-import '../core/models/user_models/get_user_by_id.dart';
-import '../core/models/user_models/get_user_orders.dart';
-import '../core/models/user_models/update_user.dart';
+import '../core/models/user_models/create_user.dart';
 import '../core/session_manager.dart';
 import '../core/models/authentication_models/login.dart';
 import '../core/models/authentication_models/register.dart';
 import '../core/models/authentication_models/send_otp.dart';
 import '../core/models/authentication_models/verify_otp.dart';
-import '../core/models/cart_models/get_cart.dart';
-import '../core/models/cart_models/update_cart.dart';
-import '../core/models/cart_models/add_to_cart.dart';
-import '../core/models/cart_models/remove_from_cart.dart';
-import '../core/models/product_models/categories.dart';
+
 import '../core/models/product_models/all_product.dart';
 import '../core/models/product_models/product_by_id.dart';
 import '../core/models/product_models/search_product.dart';
+import '../core/models/product_models/categories.dart';
+
+import '../core/models/cart_models/get_cart.dart';
+import '../core/models/cart_models/add_to_cart.dart';
+import '../core/models/cart_models/update_cart.dart';
+import '../core/models/cart_models/remove_from_cart.dart';
+import '../core/models/cart_models/clear_cart.dart';
+
+import '../core/models/order_models/create_order.dart';
+import '../core/models/order_models/get_order_by_id.dart';
+import '../core/models/user_models/get_user_by_id.dart';
+
+import '../core/models/user_models/update_user.dart';
+import '../core/models/user_models/get_user_orders.dart';
 
 class DataSource {
   late final Dio dio;
@@ -82,11 +89,11 @@ class DataSource {
 
   // ===================== Verify Otp =====================//
 
-  Future<VerifyOtpModel> verifyOtp({required String phone, required String otp}) async {
+  Future<VerifyOtpResponse> verifyOtp({required String phone, required String otp}) async {
     try {
       final response = await dio.post('/api/v1/auth/verify-otp', data: {'phone': phone, 'otp': otp});
 
-      return VerifyOtpModel.fromJson(response.data);
+      return VerifyOtpResponse.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to verify OTP: $e');
     }
@@ -271,7 +278,7 @@ class DataSource {
     }
   }
 
-  // ===================== RemoveFromCart =====================//
+  // ===================== Get User =====================//
 
   Future<UserResponse> getUser(int userId) async {
     try {
@@ -282,7 +289,7 @@ class DataSource {
     }
   }
 
-  // ===================== RemoveFromCart =====================//
+  // ===================== Update User =====================//
 
   Future<UpdateUserResponse> updateUser({
     required int id,
@@ -308,34 +315,86 @@ class DataSource {
     }
   }
 
-  // ===================== RemoveFromCart =====================//
+  // ===================== Update User =====================//
 
-  Future<OrdersResponse> getOrders({int page = 1, int limit = 10}) async {
+  Future<CreateUserResponse> createUser({
+    required String phone,
+    required String name,
+    required String email,
+    required String address,
+    required String password,
+  }) async {
     try {
-      final response = await dio.get('/api/v1/users/', queryParameters: {
-        "page": page,
-        "limit": limit,
-      });
+      final response = await dio.post(
+        "/api/v1/users",
+        data: {
+          "phone": phone,
+          "name": name,
+          "email": email,
+          "address": address,
+          "password": password,
+        },
+      );
 
-      return OrdersResponse.fromJson(response.data);
+      return CreateUserResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception(
+          "Failed to create user: ${e.response?.data ?? e.message}");
     } catch (e) {
-      throw Exception("Failed to fetch orders: $e");
+      throw Exception("Unexpected error: $e");
     }
   }
 
-  /// Get single order by ID
-  Future<Order> getOrderById(int orderId) async {
+  // ===================== Get User Orders =====================//
+
+  Future<OrdersResponse> getUserOrders({
+    required int userId,
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
-      final response = await dio.get('/api/v1/users/$orderId');
-      final ordersResponse = OrdersResponse.fromJson(response.data);
-      if (ordersResponse.success && ordersResponse.data != null) {
-        return ordersResponse.data!.orders.firstWhere((o) => o.id == orderId);
-      } else {
-        throw Exception("Order not found");
-      }
+      final response = await dio.get(
+        "/api/v1/users/$userId/orders",
+        queryParameters: {
+          "page": page,
+          "limit": limit,
+        },
+      );
+
+      return OrdersResponse.fromJson(response.data ?? {});
+    } on DioException catch (e) {
+      throw Exception("Failed to fetch user orders: ${e.response?.data ?? e.message}");
     } catch (e) {
-      throw Exception("Failed to fetch order: $e");
+      throw Exception("Unexpected error: $e");
+    }
+  }
+
+  // ===================== Create Order =====================//
+
+  Future<CreateOrderResponse> createOrder(Map<String, dynamic> body) async {
+    try {
+      final response = await dio.post("/api/v1/orders", data: body);
+
+      return CreateOrderResponse.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+ // ===================== Get Order by Id =====================//
+
+  Future<OrdersListResponse> getOrderById(int lastOrderId) async {
+    try {
+      final response = await dio.get("/api/v1/orders/$lastOrderId");
+
+      if (response.statusCode == 200 && response.data != null) {
+        return OrdersListResponse.fromJson(response.data);
+      } else {
+        throw Exception("Unexpected response: ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      throw Exception("Failed to fetch order: ${e.message}");
+    } catch (e) {
+      throw Exception("Unexpected error: $e");
     }
   }
 }
-

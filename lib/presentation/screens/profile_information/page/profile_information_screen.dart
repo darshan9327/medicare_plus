@@ -72,7 +72,7 @@ class _ProfileInformationState extends State<ProfileInformation> {
         name: _nameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
-        address: "Dummy Address", // Replace with address field if needed
+        address: "Dummy Address",
       );
 
       if (result.success) {

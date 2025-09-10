@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../data/data_source.dart';
+import '../../cart/controller/cart_controller.dart';
 import '../../common/utils/common_appbar.dart';
 import '../../common/widgets/common_container.dart';
-import '../widgets/checkout_widget/address_dailog.dart';
+import '../widgets/checkout_widget/address_dialog.dart';
 import '../widgets/checkout_widget/address_tile.dart';
 import '../widgets/checkout_widget/coupon_field.dart';
 import '../widgets/checkout_widget/order_summary.dart';
 import '../widgets/checkout_widget/payment_method_tile.dart';
+import 'my_orders_screen.dart';
 import 'secure_payment_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -19,15 +22,21 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  List<Map<String, String>> addresses = [
-    {"type": "Home", "name": "John Doe", "address": "123 Main Street, Apartment 4B Ahmedabad, Gujarat 380001", "phone": "+91 98765 43210"},
-  ];
-
-  double? finalAmount;
-  int selectedAddressIndex = 0;
-  int selectedPaymentIndex = 0;
-
+  final DataSource api = DataSource();
   final TextEditingController couponController = TextEditingController();
+  final cartController = Get.find<CartController>();
+  double? finalAmount;
+  int selectedPaymentIndex = 0;
+  int selectedAddressIndex = 0;
+
+  List<Map<String, String>> addresses = [
+    {
+      "type": "Home",
+      "name": "John Doe",
+      "address": "123 Main Street, Apartment 4B Ahmedabad, Gujarat 380001",
+      "phone": "+91 98765 43210"
+    },
+  ];
 
   List<Map<String, String>> paymentMethods = [
     {"name": "UPI", "emoji": "💳"},
@@ -36,10 +45,71 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     {"name": "COD", "emoji": "💵"},
   ];
 
+  bool _isPlacingOrder = false;
+
   @override
   void initState() {
     super.initState();
     finalAmount = widget.totalAmount;
+  }
+
+  Future<void> _placeOrder() async {
+    if (_isPlacingOrder) return;
+    setState(() => _isPlacingOrder = true);
+
+    try {
+      final cartItems = cartController.cartItems.map((item) => {
+        "productId": item.id,
+        "quantity": item.quantity,
+        "price": item.price,
+        "prescription_url": item.prescriptionFile ?? "",
+        "notes": item.notes ?? "",
+      }).toList();
+
+      final payload = {
+        "user_id": 1,
+        "total": finalAmount!.toStringAsFixed(2),
+        "status": "Confirmed",
+        "payment_method": paymentMethods[selectedPaymentIndex]['name'],
+        "payment_status": "Paid",
+        "delivery_address": addresses[selectedAddressIndex]['address'],
+        "phone_number": addresses[selectedAddressIndex]['phone'],
+        "items": cartItems,
+      };
+      print("🛒 Creating order with payload: $payload");
+
+      final response = await api.createOrder(payload);
+
+      print("✅ API Response: ${response.toJson()}");
+
+      if (response.success && response.data != null) {
+        final createdOrder = response.data!.order;
+
+        print("🎉 Created Order ID: ${createdOrder.id}");
+        print("🕒 Created At: ${createdOrder.createdAt}");
+        print("📦 Items: ${createdOrder.items.map((e) => e.toJson()).toList()}");
+
+        Get.offAll(() => SecurePayment(
+          order: createdOrder,
+          totalAmount: finalAmount!,
+          onPaymentComplete: () {
+            Get.offAll(() => MyOrders(newOrder: createdOrder));
+          },
+        ));
+      } else {
+        print("❌ Order failed: ${response.message}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Order failed: ${response.message}")),
+        );
+      }
+    } catch (e) {
+      print("🔥 Exception while creating order: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Order failed: $e")),
+      );
+    } finally {
+      setState(() => _isPlacingOrder = false);
+    }
   }
 
   @override
@@ -54,6 +124,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } else {
       crossAxisCount = 2;
     }
+
     return Scaffold(
       appBar: CommonAppBar(title: "Checkout"),
       body: Padding(
@@ -62,7 +133,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Delivery Address", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+              const Text("Delivery Address",
+                  style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
               const SizedBox(height: 10),
               ...List.generate(addresses.length, (index) {
                 return AddressTile(
@@ -78,7 +151,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     setState(() {
                       addresses.removeAt(index);
                       if (selectedAddressIndex >= addresses.length) {
-                        selectedAddressIndex = addresses.isEmpty ? 0 : addresses.length - 1;
+                        selectedAddressIndex =
+                        addresses.isEmpty ? 0 : addresses.length - 1;
                       }
                     });
                   },
@@ -89,7 +163,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 color: Colors.white,
                 color1: Colors.blue,
                 onPressed: () async {
-                  final newAddress = await showDialog<Map<String, String>>(context: context, builder: (context) => const AddressDialog());
+                  final newAddress = await showDialog<Map<String, String>>(
+                    context: context,
+                    builder: (context) => const AddressDialog(),
+                  );
                   if (newAddress != null) {
                     setState(() {
                       addresses.add(newAddress);
@@ -98,9 +175,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   }
                 },
               ),
-
               const SizedBox(height: 20),
-              const Text("Payment Method", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+              const Text("Payment Method",
+                  style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
               const SizedBox(height: 10),
               GridView.builder(
                 shrinkWrap: true,
@@ -116,7 +194,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   return PaymentMethodTile(
                     method: paymentMethods[index],
                     isSelected: selectedPaymentIndex == index,
-                    onSelect: () => setState(() => selectedPaymentIndex = index),
+                    onSelect: () =>
+                        setState(() => selectedPaymentIndex = index),
                   );
                 },
               ),
@@ -124,20 +203,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               CouponField(
                 controller: couponController,
                 onApply: () {
-                  if (couponController.text.trim().toUpperCase() == "DISCOUNT10") {
+                  if (couponController.text.trim().toUpperCase() ==
+                      "DISCOUNT10") {
                     setState(() {
-                      finalAmount = widget.totalAmount * 0.9; // 10% off
+                      finalAmount = widget.totalAmount * 0.9;
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("10% Discount Applied")));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("10% Discount Applied")));
                   }
                 },
               ),
               const SizedBox(height: 20),
               OrderSummary(
                 finalAmount: finalAmount ?? widget.totalAmount,
-                onPlaceOrder: () {
-                  Get.offAll(SecurePayment(totalAmount: finalAmount ?? widget.totalAmount));
-                },
+                onPlaceOrder: _placeOrder,
               ),
             ],
           ),

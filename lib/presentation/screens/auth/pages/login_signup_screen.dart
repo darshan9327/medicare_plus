@@ -11,7 +11,8 @@ class LoginSignupScreen extends StatefulWidget {
   State<LoginSignupScreen> createState() => _LoginSignupScreenState();
 }
 
-class _LoginSignupScreenState extends State<LoginSignupScreen> with SingleTickerProviderStateMixin {
+class _LoginSignupScreenState extends State<LoginSignupScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -38,21 +39,30 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> with SingleTicker
               const SizedBox(height: 40),
               const Icon(Icons.lock, size: 60, color: Colors.orange),
               const SizedBox(height: 20),
-              const Text("Welcome Back", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              const Text("Sign in to your account", style: TextStyle(color: Colors.grey)),
+              const Text("Welcome Back",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text("Sign in to your account",
+                  style: TextStyle(color: Colors.grey)),
               SizedBox(height: SConfig.sHeight * 0.030),
 
               // -------- TabBar ----------
               Container(
                 height: 60,
-                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12)),
                 child: TabBar(
                   controller: _tabController,
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.all(5),
                   dividerColor: Colors.transparent,
                   indicator: BoxDecoration(
-                    boxShadow: [BoxShadow(color: Colors.grey.shade300, spreadRadius: 1, blurRadius: 5)],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey.shade300,
+                          spreadRadius: 1,
+                          blurRadius: 5)
+                    ],
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -66,7 +76,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> with SingleTicker
               SizedBox(height: SConfig.sHeight * 0.030),
 
               // -------- TabBarView ----------
-              SizedBox(height: SConfig.sHeight * 0.65, child: TabBarView(controller: _tabController, children: [LoginForm(), SignupForm()])),
+              SizedBox(
+                height: SConfig.sHeight * 0.65,
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    LoginForm(onGoToSignup: () {
+                      _tabController.animateTo(1);
+                    }),
+                    const SignupForm(),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

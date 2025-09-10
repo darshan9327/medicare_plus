@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../common/utils/size_config.dart';
-import 'address_dailog.dart';
+import 'address_dialog.dart';
 
 class AddressTile extends StatelessWidget {
   final Map<String, String> address;

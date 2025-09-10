@@ -27,7 +27,6 @@ class CommonTextFormField extends StatelessWidget {
     this.readonly,
     this.hintColor,
     this.suffix,
-    // required bool obscureText,
     this.obscureText = false,
   });
 

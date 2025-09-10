@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/order_models/create_order.dart' as create_order_model;
 import '../../../../core/models/user_models/get_user_orders.dart';
 import '../../../../data/data_source.dart';
 import '../../common/utils/common_appbar.dart';
 import '../widgets/my_order_widget/order_card.dart';
 
 class MyOrders extends StatefulWidget {
-  const MyOrders({super.key});
+  final create_order_model.Order? newOrder;
+
+  const MyOrders({super.key, this.newOrder});
 
   @override
   State<MyOrders> createState() => _MyOrdersState();
@@ -21,11 +24,26 @@ class _MyOrdersState extends State<MyOrders> {
   }
 
   Future<List<Order>> fetchOrders() async {
-    final response = await DataSource().getOrders();
+    int userId = 1;
+    final response = await DataSource().getUserOrders(userId: userId);
+
+    List<Order> orders = [];
     if (response.success && response.data != null) {
-      return response.data!.orders;
+      orders = response.data!.orders;
     }
-    return [];
+
+    if (widget.newOrder != null) {
+      orders.insert(0, widget.newOrder! as Order);
+    }
+
+    return orders;
+  }
+
+  Future<void> _refreshOrders() async {
+    final orders = await fetchOrders();
+    setState(() {
+      _ordersFuture = Future.value(orders);
+    });
   }
 
   @override
@@ -44,13 +62,16 @@ class _MyOrdersState extends State<MyOrders> {
           }
 
           final orders = snapshot.data!;
-          return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return OrderCard(order: order);
-            },
+          return RefreshIndicator(
+            onRefresh: _refreshOrders,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(20),
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                return OrderCard(order: order);
+              },
+            ),
           );
         },
       ),

@@ -75,7 +75,6 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔍 Search Input
               SearchBarWidget(
                 onChanged: (value) {
                   setState(() {
@@ -85,8 +84,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 🏷 Filter Buttons
               Row(
                 children: [
                   FilterButton(label: "All", selected: filter == "All", onTap: () => setState(() => filter = "All")),
@@ -97,14 +94,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-
-              // Result Count
               if (!_isLoading && _results.isNotEmpty)
                 Text("${filteredList.length} results found", style: const TextStyle(color: Colors.grey)),
-
               const SizedBox(height: 12),
-
-              // 📋 Results / Loading / Error
               Expanded(
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
@@ -177,7 +169,7 @@ class _SearchScreenState extends State<SearchScreen> {
 //       final response = await _api.getAllProducts();
 //       setState(() {
 //         _allMedicines = response.data ?? [];
-//         _filteredMedicines = _allMedicines; // initially show all
+//         _filteredMedicines = _allMedicines;
 //       });
 //     } catch (e) {
 //       setState(() {
@@ -213,7 +205,6 @@ class _SearchScreenState extends State<SearchScreen> {
 //         child: Column(
 //           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
-//             // 🔍 Search Input
 //             SearchBarWidget(
 //               onChanged: (value) {
 //                 searchQuery = value;
@@ -222,7 +213,6 @@ class _SearchScreenState extends State<SearchScreen> {
 //             ),
 //             const SizedBox(height: 12),
 //
-//             // 🏷 Filter Buttons
 //             Row(
 //               children: [
 //                 FilterButton(label: "All", selected: filter == "All", onTap: () {
@@ -243,13 +233,11 @@ class _SearchScreenState extends State<SearchScreen> {
 //             ),
 //             const SizedBox(height: 12),
 //
-//             // Result Count
 //             if (!_isLoading && _filteredMedicines.isNotEmpty)
 //               Text("${_filteredMedicines.length} results found", style: const TextStyle(color: Colors.grey)),
 //
 //             const SizedBox(height: 12),
 //
-//             // 📋 Results / Loading / Error
 //             Expanded(
 //               child: _isLoading
 //                   ? const Center(child: CircularProgressIndicator())

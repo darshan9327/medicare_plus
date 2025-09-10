@@ -69,11 +69,10 @@ class CartController extends GetxController {
     try {
       final AddToCartModel response = await api.addToCart(
         productId: item.id,
-        quantity: item.quantity,
+        quantity: 1,
       );
       print("✅ API AddToCart: ${response.message}");
-
-      // Always sync cart after operation
+      item.quantity = 1;
       await fetchCart();
     } catch (e) {
       print("❌ Error adding to cart API: $e");
@@ -92,8 +91,6 @@ class CartController extends GetxController {
         productId: item.id,
       );
       print("✅ API RemoveFromCart: ${response.message}");
-
-      // Refresh cart
       await fetchCart();
     } catch (e) {
       print("❌ Error removing from cart API: $e");

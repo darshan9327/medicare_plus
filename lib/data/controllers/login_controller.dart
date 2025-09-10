@@ -10,7 +10,6 @@ class LoginController extends GetxController {
 
   var isLoading = false.obs;
 
-  /// Login user
   Future<bool> loginUser({required String phone, required String password}) async {
     try {
       isLoading.value = true;
@@ -18,7 +17,6 @@ class LoginController extends GetxController {
       final LoginModel result = await api.login(phone: phone, password: password);
 
       if (result.success == true) {
-        // ✅ Save login state & token
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool("isLoggedIn", true);
         await prefs.setString("token", result.data?.token ?? "");

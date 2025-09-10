@@ -32,7 +32,6 @@ class PrescriptionListItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Header Row
           Row(
             children: [
               Container(
@@ -62,14 +61,12 @@ class PrescriptionListItem extends StatelessWidget {
 
           const SizedBox(height: 15),
 
-          /// Medicines
           const Text("Medicines:", style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF111827))),
           const SizedBox(height: 5),
           Text(prescription['medicines'].join(', '), style: const TextStyle(color: Color(0xFF6B7280))),
 
           const SizedBox(height: 10),
 
-          /// Validity + Button
           Row(
             children: [
               const Icon(Icons.schedule, size: 16, color: Color(0xFF6B7280)),

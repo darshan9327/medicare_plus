@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicare_plus/presentation/screens/common/widgets/common_container.dart';
 import '../../../../../core/models/user_models/get_user_orders.dart';
 import 'order_action_button.dart';
 
@@ -37,7 +38,6 @@ class OrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Order ID & Status
             Row(
               children: [
                 Text("#ORD${order.id}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -59,7 +59,6 @@ class OrderCard extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
-            // Items & Price
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -71,30 +70,25 @@ class OrderCard extends StatelessWidget {
             Text(productList, style: const TextStyle(color: Colors.black87)),
 
             const SizedBox(height: 16),
-            // Action Buttons
             Row(
               children: [
                 Expanded(
-                  child: OrderActionButton(
-                    text: "View Details",
-                    color: Colors.blue,
-                    isOutlined: true,
-                    onPressed: () {
-                      // TODO: Navigate to order detail screen
-                    },
-                  ),
+                    child: CommonContainer(
+                        text: "View Details",
+                        color1: Colors.blue,
+                        color: Colors.white,
+                        onPressed: (){}
+                    )
                 ),
                 if (order.status.toLowerCase() == "completed") const SizedBox(width: 10),
                 if (order.status.toLowerCase() == "completed")
                   Expanded(
-                    child: OrderActionButton(
-                      text: "Reorder",
-                      color: Colors.blue,
-                      isOutlined: true,
-                      onPressed: () {
-                        // TODO: Add reorder functionality
-                      },
-                    ),
+                      child: CommonContainer(
+                          text: "Reorder",
+                          color1: Colors.blue,
+                          color: Colors.white,
+                          onPressed: (){}
+                      )
                   ),
               ],
             ),

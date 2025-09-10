@@ -139,15 +139,15 @@ class _UploadPrescriptionState extends State<UploadPrescription> {
 
                     // final cartController = Get.find<CartController>();
                     // cartController.addToCart(
-                    //   // CartItem(
-                    //   //   name: widget.product.name,
-                    //   //   company: widget.product.company,
-                    //   //   price: widget.product.price,
-                    //   //   image: widget.product.image,
-                    //   //   requiresPrescription: widget.product.prescriptionRequired,
-                    //   //   prescriptionFile: uploadedFile,
-                    //   //   notes: notesController.text,
-                    //   // ),
+                    //   CartItem(
+                    //     name: widget.product.name,
+                    //     company: widget.product.company,
+                    //     price: widget.product.price,
+                    //     image: widget.product.image,
+                    //     requiresPrescription: widget.product.prescriptionRequired,
+                    //     prescriptionFile: uploadedFile,
+                    //     notes: notesController.text,
+                    //   ),
                     // );
 
                     ScaffoldMessenger.of(
