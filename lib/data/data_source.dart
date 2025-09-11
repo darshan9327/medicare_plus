@@ -89,13 +89,38 @@ class DataSource {
 
   // ===================== Verify Otp =====================//
 
-  Future<VerifyOtpResponse> verifyOtp({required String phone, required String otp}) async {
+  Future<VerifyOtpResponse> verifyOtp({
+    required String phone,
+    required String otp,
+  }) async {
     try {
-      final response = await dio.post('/api/v1/auth/verify-otp', data: {'phone': phone, 'otp': otp});
+      final response = await dio.post(
+        '/api/v1/auth/verify-otp',
+        data: {
+          "phone": phone,
+          "otp": otp,
+        },
+      );
 
-      return VerifyOtpResponse.fromJson(response.data);
+      final verifyOtpResponse = VerifyOtpResponse.fromJson(response.data);
+
+      if (verifyOtpResponse.success) {
+        // Save token if needed
+        if (verifyOtpResponse.token != null) {
+          await SessionManager.saveSessionId(verifyOtpResponse.token!);
+          print("🔑 Token saved: ${verifyOtpResponse.token}");
+        }
+
+        // Save userId for future API calls
+        if (verifyOtpResponse.user != null) {
+          await SessionManager.saveUserId(verifyOtpResponse.user!.id);
+          print("👤 UserId saved: ${verifyOtpResponse.user!.id}");
+        }
+      }
+
+      return verifyOtpResponse;
     } catch (e) {
-      throw Exception('Failed to verify OTP: $e');
+      throw Exception("Failed to verify OTP: $e");
     }
   }
 

@@ -46,9 +46,8 @@ class ProfilePage extends StatelessWidget {
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
-                  await SessionManager.clearSessionId();
+                  await SessionManager.clearSession();
                   Get.offAll(LoginSignupScreen());
-
                 },
               ),
             ],

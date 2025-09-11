@@ -1,62 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/models/user_models/create_user.dart';
+import '../../../../core/session_manager.dart';
 import '../../../../data/data_source.dart';
-import '../../common/utils/size_config.dart';
 import '../../common/widgets/common_container.dart';
 import '../../common/widgets/common_text_form_field.dart';
 import '../../dashboard/pages/dashboard_screen.dart';
 
 class SignupForm extends StatefulWidget {
-  final String? phone;
-
-  const SignupForm({super.key, this.phone});
+  const SignupForm({super.key});
 
   @override
   State<SignupForm> createState() => _SignupFormState();
 }
 
 class _SignupFormState extends State<SignupForm> {
-  final _signupFormKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final _fullName = TextEditingController();
   final _mobileNo = TextEditingController();
   final _email = TextEditingController();
   final _address = TextEditingController();
-  final _password = TextEditingController();
-
   final DataSource api = DataSource();
+
   bool _isLoading = false;
+  int? _userId;
 
   @override
   void initState() {
     super.initState();
-    if (widget.phone != null) {
-      _mobileNo.text = widget.phone!;
-    }
+    _loadUserDetails();
   }
 
-  Future<void> _signupUser() async {
-    if (!_signupFormKey.currentState!.validate()) return;
+  Future<void> _loadUserDetails() async {
+    final userId = await SessionManager.getUserId();
+    setState(() => _userId = userId);
+  }
+
+  Future<void> _updateUser() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_userId == null) return;
 
     setState(() => _isLoading = true);
 
     try {
-      final CreateUserResponse response = await api.createUser(
+      final response = await api.updateUser(
+        id: _userId!,
         phone: _mobileNo.text.trim(),
         name: _fullName.text.trim(),
         email: _email.text.trim(),
         address: _address.text.trim(),
-        password: _password.text.trim(),
       );
 
       if (!mounted) return;
 
-      if (response.success == true) {
+      if (response.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.message)),
         );
-
         Get.offAll(() => const DashboardScreen());
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -72,10 +72,11 @@ class _SignupFormState extends State<SignupForm> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _signupFormKey,
+      key: _formKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,9 +87,7 @@ class _SignupFormState extends State<SignupForm> {
               controller: _fullName,
               hintText: "Enter your name",
               validator: (value) =>
-              value == null || value.trim().isEmpty
-                  ? "Full name is required"
-                  : null,
+              value == null || value.trim().isEmpty ? "Full name is required" : null,
             ),
             const SizedBox(height: 20),
 
@@ -97,12 +96,7 @@ class _SignupFormState extends State<SignupForm> {
             CommonTextFormField(
               controller: _mobileNo,
               hintText: "+91 98765 43210",
-              readonly: widget.phone != null,
-              keyboardType: TextInputType.number,
-              validator: (value) => value == null ||
-                  !RegExp(r'^[0-9]{10}$').hasMatch(value)
-                  ? "Enter valid 10-digit number"
-                  : null,
+              readonly: true, // mobile comes from OTP, should not change
             ),
             const SizedBox(height: 20),
 
@@ -113,11 +107,8 @@ class _SignupFormState extends State<SignupForm> {
               hintText: "Enter your Email Id",
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Email is required";
-                }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                    .hasMatch(value)) {
+                if (value == null || value.trim().isEmpty) return "Email is required";
+                if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                   return "Enter valid email";
                 }
                 return null;
@@ -131,34 +122,16 @@ class _SignupFormState extends State<SignupForm> {
               controller: _address,
               hintText: "Enter your full address",
               keyboardType: TextInputType.multiline,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Address is required";
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-
-            const Text("Password"),
-            const SizedBox(height: 5),
-            CommonTextFormField(
-              controller: _password,
-              hintText: "Enter your password",
-              obscureText: true,
               validator: (value) =>
-              value == null || value.trim().isEmpty
-                  ? "Password is required"
-                  : null,
+              value == null || value.trim().isEmpty ? "Address is required" : null,
             ),
-
-            SizedBox(height: SConfig.sHeight * 0.050),
+            const SizedBox(height: 30),
 
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : CommonContainer(
-              text: "Signup",
-              onPressed: _signupUser,
+              text: "Update Details",
+              onPressed: _updateUser,
             ),
           ],
         ),

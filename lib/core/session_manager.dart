@@ -1,23 +1,42 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {
-  static const String _key = "session_id";
+  static const String _sessionKey = "x-session-id";
+  static const String _userIdKey = "userId";
+  static const String _isLoggedInKey = "isLoggedIn";
 
-  // Save session id
   static Future<void> saveSessionId(String sessionId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, sessionId);
+    await prefs.setString(_sessionKey, sessionId);
   }
 
-  // Get session id
   static Future<String?> getSessionId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_key);
+    return prefs.getString(_sessionKey);
   }
 
-  // Clear session id (logout case)
-  static Future<void> clearSessionId() async {
+  static Future<void> saveUserId(int userId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key);
+    await prefs.setInt(_userIdKey, userId);
+  }
+
+  static Future<int?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_userIdKey);
+  }
+
+  static Future<void> setLoggedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isLoggedInKey, value);
+  }
+
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isLoggedInKey) ?? false;
+  }
+
+  static Future<void> clearSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 }

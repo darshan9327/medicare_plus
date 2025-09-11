@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/session_manager.dart';
 import '../../../../data/data_source.dart';
 import '../../common/utils/common_appbar.dart';
 import '../widgets/emergency_contact_card.dart';
@@ -21,6 +22,7 @@ class _ProfileInformationState extends State<ProfileInformation> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
   final _dobController = TextEditingController();
 
   String _selectedGender = 'Male';
@@ -29,32 +31,24 @@ class _ProfileInformationState extends State<ProfileInformation> {
   bool _isEditing = false;
   bool _loading = true;
 
-  int userId = 1;
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    _fetchUser();
+    _loadUser();
   }
 
-  bool _dataFetched = false;
-
-  Future<void> _fetchUser() async {
-    if (_dataFetched) return;
-
+  Future<void> _loadUser() async {
+    setState(() => _loading = true);
     try {
-      final response = await _dataSource.getUser(userId);
-      if (response.success && response.data != null) {
-        final user = response.data!;
-        _nameController.text = user.name;
-        _emailController.text = user.email;
-        _phoneController.text = user.phone;
-        _dobController.text = "15/06/1990";
-        _dataFetched = true;
-      }
+      final id = await SessionManager.getUserId();
+      if (id == null) throw Exception("User not logged in");
+      userId = id;
+      await _fetchUser();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error fetching user: $e"),
+        content: Text("Error loading user: $e"),
         backgroundColor: Colors.red,
       ));
     } finally {
@@ -62,17 +56,40 @@ class _ProfileInformationState extends State<ProfileInformation> {
     }
   }
 
+  bool _dataFetched = false;
+
+  Future<void> _fetchUser() async {
+    if (userId == null) return;
+    try {
+      final response = await _dataSource.getUser(userId!);
+      if (response.success && response.data != null) {
+        final user = response.data!;
+        _nameController.text = user.name;
+        _emailController.text = user.email;
+        _phoneController.text = user.phone;
+        _addressController.text = user.address;
+        _dobController.text = "13/09/2003";
+        _dataFetched = true;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error fetching user: $e"),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
 
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
+    if (userId == null) return;
 
     try {
       final result = await _dataSource.updateUser(
-        id: userId,
+        id: userId!,
         name: _nameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
-        address: "Dummy Address",
+        address: _addressController.text,
       );
 
       if (result.success) {
@@ -95,11 +112,13 @@ class _ProfileInformationState extends State<ProfileInformation> {
     }
   }
 
+
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _addressController.dispose();
     _dobController.dispose();
     super.dispose();
   }

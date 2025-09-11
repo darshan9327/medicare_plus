@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medicare_plus/presentation/screens/auth/widgets/sign_up_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/session_manager.dart';
 import '../../../../data/data_source.dart';
 import '../../common/utils/size_config.dart';
 import '../../common/widgets/common_container.dart';
@@ -68,29 +67,26 @@ class _LoginFormState extends State<LoginForm> {
                       Navigator.pop(context);
                       if (response.success == true) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              response.message ?? "OTP sent successfully"),
+                          content:
+                          Text(response.message ?? "OTP sent successfully"),
                           duration: const Duration(seconds: 1),
                         ));
                         setState(() {
                           otpSent = true;
                         });
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(response.message ?? "Failed to send OTP"),
-                              duration: const Duration(seconds: 1),
-                            )
-                        );
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              response.message ?? "Failed to send OTP"),
+                          duration: const Duration(seconds: 1),
+                        ));
                       }
                     } catch (e) {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Error: $e"),
-                            duration: const Duration(seconds: 1),
-                          )
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Error: $e"),
+                        duration: const Duration(seconds: 1),
+                      ));
                     }
                   }
                 },
@@ -126,28 +122,35 @@ class _LoginFormState extends State<LoginForm> {
                       Navigator.pop(context);
 
                       if (response.success) {
-                        final prefs = await SharedPreferences.getInstance();
+                        if (response.user == null) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("User not found, please try again")),
+                          );
+                          return;
+                        }
+                        await SessionManager.saveSessionId(response.token ?? "");
+                        await SessionManager.saveUserId(response.user!.id);
 
-                        await prefs.setString("token", response.token ?? "");
-                        await prefs.setInt("userId", response.user?.id ?? 0);
-
-                        if (response.user?.name == null || response.user!.name!.isEmpty) {
+                        if ((response.user?.name ?? "").isEmpty) {
                           widget.onGoToSignup?.call();
                         } else {
-                          await prefs.setBool("isLoggedIn", true);
+                          await SessionManager.setLoggedIn(true);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(response.message ?? "Login successful"),
-                            duration: Duration(seconds: 1)),
+                            SnackBar(
+                                content: Text(response.message ?? "Login successful"),
+                                duration: const Duration(seconds: 1)),
                           );
                           Get.offAll(() => const DashboardScreen());
                         }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(response.message ?? "Failed to login"),
-                          duration: Duration(seconds: 1)),
+                          SnackBar(
+                              content: Text(
+                                  response.message ?? "Failed to login"),
+                              duration: const Duration(seconds: 1)),
                         );
                       }
-
                     } catch (e) {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
