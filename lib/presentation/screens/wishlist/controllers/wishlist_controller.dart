@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../../../../core/models/product_models/product_by_id.dart';
+import '../../../../data/models/product_models/product_by_id.dart';
 
 class WishlistController extends GetxController {
   var wishlist = <Data>[].obs;

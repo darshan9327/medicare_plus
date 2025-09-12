@@ -36,7 +36,7 @@ class ProfileOptionsList extends StatelessWidget {
           _divider(),
           ProfileOptionTile(iconEmoji: '📍', title: "My Addresses", subtitle: "Manage delivery addresses", onTap: onAddresses),
           _divider(),
-          ProfileOptionTile(iconEmoji: '📋', title: "My Orders", subtitle: "Manage Order Status", onTap: onOrders),
+          ProfileOptionTile(iconEmoji: '📦', title: "My Orders", subtitle: "Manage Order Status", onTap: onOrders),
           _divider(),
           ProfileOptionTile(iconEmoji: '📋', title: "My Prescriptions", subtitle: "Uploaded prescriptions", onTap: onPrescriptions),
           _divider(),

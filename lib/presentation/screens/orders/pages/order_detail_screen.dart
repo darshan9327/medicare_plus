@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/models/order_models/get_order_by_id.dart';
+import '../../../../data/models/order_models/get_order_by_id.dart';
 import '../../../../data/data_source.dart';
 
 class OrderDetailsScreen extends StatefulWidget {

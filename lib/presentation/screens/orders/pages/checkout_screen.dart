@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../data/data_source.dart';
-import '../../cart/controller/cart_controller.dart';
-import '../../common/utils/common_appbar.dart';
-import '../../common/widgets/common_container.dart';
+import 'my_orders_screen.dart';
+import 'secure_payment_screen.dart';
 import '../widgets/checkout_widget/address_dialog.dart';
 import '../widgets/checkout_widget/address_tile.dart';
 import '../widgets/checkout_widget/coupon_field.dart';
 import '../widgets/checkout_widget/order_summary.dart';
 import '../widgets/checkout_widget/payment_method_tile.dart';
-import 'my_orders_screen.dart';
-import 'secure_payment_screen.dart';
+import '../../cart/controller/cart_controller.dart';
+import '../../common/widgets/common_container.dart';
+import '../../common/utils/common_appbar.dart';
+import '../../../../data/data_source.dart';
+import '../../../../core/session_manager.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final double totalAmount;
@@ -58,6 +59,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     setState(() => _isPlacingOrder = true);
 
     try {
+      final userId = await SessionManager.getUserId() ?? 0;
+      final sessionId = await SessionManager.getSessionId() ?? "";
+
+      print("👤 Current User ID placing order: $userId");
+      print("🔑 Current Session ID: $sessionId");
+
       final cartItems = cartController.cartItems.map((item) => {
         "productId": item.id,
         "quantity": item.quantity,
@@ -67,7 +74,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }).toList();
 
       final payload = {
-        "user_id": 1,
         "total": finalAmount!.toStringAsFixed(2),
         "status": "Confirmed",
         "payment_method": paymentMethods[selectedPaymentIndex]['name'],
@@ -76,6 +82,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         "phone_number": addresses[selectedAddressIndex]['phone'],
         "items": cartItems,
       };
+
       print("🛒 Creating order with payload: $payload");
 
       final response = await api.createOrder(payload);
@@ -88,6 +95,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         print("🎉 Created Order ID: ${createdOrder.id}");
         print("🕒 Created At: ${createdOrder.createdAt}");
         print("📦 Items: ${createdOrder.items.map((e) => e.toJson()).toList()}");
+        print("✅ Order created successfully for user $userId with session $sessionId");
 
         Get.offAll(() => SecurePayment(
           order: createdOrder,
@@ -111,6 +119,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       setState(() => _isPlacingOrder = false);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

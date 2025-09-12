@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/order_models/create_order.dart' as create_order_model;
-import '../../../../core/models/user_models/get_user_orders.dart';
+import '../../../../data/models/order_models/create_order.dart' as create_order_model;
+import '../../../../data/models/user_models/get_user_orders.dart';
 import '../../../../data/data_source.dart';
 import '../../common/utils/common_appbar.dart';
 import '../widgets/my_order_widget/order_card.dart';

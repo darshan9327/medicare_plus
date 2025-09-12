@@ -1,0 +1,1051 @@
+{
+  "info": {
+    "name": "Pharmacy Backend v2 API - Complete Collection",
+    "description": "Complete API collection for Pharmacy App Backend v2\n\n🚀 **Production URL**: https://pharmacy-api-va75.onrender.com\n📍 **Local URL**: http://localhost:9001\n\n## 🔑 Key Features\n- **Test Mode**: Use OTP '123456' for any phone number\n- **OTP Expiry**: 10 minutes\n- **80+ Products**: Pre-loaded in database\n- **Session-based Cart**: Use x-session-id header\n\n## 📋 Quick Start\n1. Import this collection in Postman\n2. Import the environments file\n3. Select environment (Production/Development)\n4. Start with Health Check endpoint\n5. Use Send OTP → Verify OTP for authentication\n\n## 🎯 Test Credentials\n- Phone: 9999999999\n- Test OTP: 123456\n- Demo User: Already created\n\n## 📝 Important Notes\n- All endpoints return standardized JSON responses\n- Authentication uses JWT tokens (7 days validity)\n- Cart operations require session ID\n- Admin endpoints need Authorization header",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0",
+    "_postman_id": "pharmacy-backend-v2",
+    "updatedAt": "2025-09-03"
+  },
+  "item": [
+    {
+      "name": "🏥 Health & Status",
+      "description": "System health and status endpoints",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Health status is healthy', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.status).to.eql('healthy');",
+                  "});",
+                  "",
+                  "pm.test('Response time is less than 500ms', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the server is running and healthy"
+          }
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1"]
+            },
+            "description": "Get API version and available endpoints information"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "description": "User authentication and OTP verification",
+      "item": [
+        {
+          "name": "Send OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OTP sent successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});",
+                  "",
+                  "// In test mode, store OTP for next request",
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.otp) {",
+                  "    pm.environment.set('lastOTP', response.data.otp);",
+                  "    console.log('OTP received:', response.data.otp);",
+                  "    console.log('Test mode active:', response.data.testMode);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate random phone for testing",
+                  "// Or use fixed test phone",
+                  "pm.variables.set('testPhone', '9999999999');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{testPhone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "send-otp"]
+            },
+            "description": "Send OTP to phone number\n\n**Test Mode**: Returns OTP in response\n**Production**: OTP sent via SMS (when configured)\n**Expiry**: 10 minutes"
+          }
+        },
+        {
+          "name": "Verify OTP (Test Mode)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OTP verified successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});",
+                  "",
+                  "// Store token for authenticated requests",
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.token) {",
+                  "    pm.environment.set('token', response.data.token);",
+                  "    pm.environment.set('userId', response.data.user.id);",
+                  "    console.log('Token saved');",
+                  "    console.log('User ID:', response.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{testPhone}}\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-otp"]
+            },
+            "description": "Verify OTP and get JWT token\n\n**Test OTP**: Use '123456' for any phone number\n**Real OTP**: Use the OTP received from Send OTP\n**Returns**: JWT token (valid for 7 days)"
+          }
+        },
+        {
+          "name": "Verify OTP (Real)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OTP verified successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.token) {",
+                  "    pm.environment.set('token', response.data.token);",
+                  "    pm.environment.set('userId', response.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{testPhone}}\",\n  \"otp\": \"{{lastOTP}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-otp"]
+            },
+            "description": "Verify with actual OTP received from Send OTP"
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Register new user with phone and password"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.token) {",
+                  "    pm.environment.set('token', response.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login with phone and password"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💊 Products",
+      "description": "Product catalog management (80+ products available)",
+      "item": [
+        {
+          "name": "Get All Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Products retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "    console.log('Total products:', response.data.length);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products?page=1&limit=20&category=&sort=name",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Items per page (default: 20)"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Filter by category"
+                },
+                {
+                  "key": "sort",
+                  "value": "name",
+                  "description": "Sort by: name, price, category"
+                }
+              ]
+            },
+            "description": "Get paginated list of products\n\n**Available Categories**:\n- Pain Relief\n- Antibiotics\n- Vitamins\n- First Aid\n- Diabetes Care\n- Heart Health\n- And more..."
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "1"]
+            },
+            "description": "Get detailed information about a specific product"
+          }
+        },
+        {
+          "name": "Search Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Search results returned', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    console.log('Search results:', response.data.length);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?q=vitamin&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "vitamin",
+                  "description": "Search query"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Max results"
+                }
+              ]
+            },
+            "description": "Search products by name or description"
+          }
+        },
+        {
+          "name": "Get Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Categories retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "    console.log('Available categories:', response.data);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "categories"]
+            },
+            "description": "Get list of all available product categories"
+          }
+        },
+        {
+          "name": "Create Product (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Admin token required"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Medicine\",\n  \"description\": \"Medicine description\",\n  \"price\": 99.99,\n  \"stock\": 50,\n  \"category\": \"General\",\n  \"image_url\": \"\",\n  \"requires_prescription\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"]
+            },
+            "description": "Create a new product (Admin only)"
+          }
+        },
+        {
+          "name": "Update Product (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Admin token required"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 30.00,\n  \"stock\": 150\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "1"]
+            },
+            "description": "Update product details (Admin only)"
+          }
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Admin token required"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "1"]
+            },
+            "description": "Delete a product (Admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Cart",
+      "description": "Shopping cart management (Session-based)",
+      "item": [
+        {
+          "name": "Get Cart",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate session ID if not exists",
+                  "if (!pm.environment.get('sessionId')) {",
+                  "    pm.environment.set('sessionId', 'session-' + Date.now());",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-session-id",
+                "value": "{{sessionId}}",
+                "description": "Session identifier for cart"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart"]
+            },
+            "description": "Get current cart contents for session"
+          }
+        },
+        {
+          "name": "Add to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Item added to cart', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-session-id",
+                "value": "{{sessionId}}",
+                "description": "Session identifier"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "add"]
+            },
+            "description": "Add product to cart"
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-session-id",
+                "value": "{{sessionId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/update/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "update", "1"]
+            },
+            "description": "Update quantity of item in cart"
+          }
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-session-id",
+                "value": "{{sessionId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/remove/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "remove", "1"]
+            },
+            "description": "Remove specific item from cart"
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-session-id",
+                "value": "{{sessionId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/clear",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "clear"]
+            },
+            "description": "Clear all items from cart"
+          }
+        },
+        {
+          "name": "Get Cart Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-session-id",
+                "value": "{{sessionId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "summary"]
+            },
+            "description": "Get cart summary with totals"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Orders",
+      "description": "Order management and tracking",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Order created', function () {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.environment.set('lastOrderId', response.data.id);",
+                  "        console.log('Order ID:', response.data.id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 2,\n      \"price\": 25.00\n    },\n    {\n      \"productId\": 2,\n      \"quantity\": 1,\n      \"price\": 30.00\n    }\n  ],\n  \"deliveryAddress\": \"123 Main St, City, 400001\",\n  \"phoneNumber\": \"{{testPhone}}\",\n  \"prescriptionUrl\": \"\",\n  \"paymentMethod\": \"COD\",\n  \"notes\": \"Please deliver between 10 AM - 6 PM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"]
+            },
+            "description": "Create a new order\n\n**Payment Methods**: COD, Online\n**Status Flow**: pending → confirmed → processing → shipped → delivered"
+          }
+        },
+        {
+          "name": "Get All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders?page=1&limit=20&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: pending, confirmed, delivered"
+                }
+              ]
+            },
+            "description": "Get all orders (Admin only)"
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{lastOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{lastOrderId}}"]
+            },
+            "description": "Get specific order details"
+          }
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{lastOrderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{lastOrderId}}", "status"]
+            },
+            "description": "Update order status (Admin only)\n\nStatus options: pending, confirmed, processing, shipped, delivered, cancelled"
+          }
+        },
+        {
+          "name": "Upload Prescription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prescriptionUrl\": \"https://example.com/prescription.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{lastOrderId}}/prescription",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{lastOrderId}}", "prescription"]
+            },
+            "description": "Attach prescription to order"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Users",
+      "description": "User profile management",
+      "item": [
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Get user profile information"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543211\",\n  \"name\": \"New User\",\n  \"email\": \"new@example.com\",\n  \"address\": \"456 Street, City\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "description": "Create new user account"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated@example.com\",\n  \"address\": \"New Address, City\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Update user profile"
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}/orders?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get order history for specific user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 Test Flows",
+      "description": "Complete test scenarios",
+      "item": [
+        {
+          "name": "Complete Authentication Flow",
+          "item": [
+            {
+              "name": "1. Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"phone\": \"9999999999\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/send-otp",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "auth", "send-otp"]
+                }
+              }
+            },
+            {
+              "name": "2. Verify with Test OTP",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"phone\": \"9999999999\", \"otp\": \"123456\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/verify-otp",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "auth", "verify-otp"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complete Shopping Flow",
+          "item": [
+            {
+              "name": "1. Browse Products",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/products?limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "products"],
+                  "query": [{"key": "limit", "value": "10"}]
+                }
+              }
+            },
+            {
+              "name": "2. Add to Cart",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "x-session-id", "value": "test-session"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"productId\": 1, \"quantity\": 2}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/cart/add",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "cart", "add"]
+                }
+              }
+            },
+            {
+              "name": "3. View Cart",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "x-session-id", "value": "test-session"}],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/cart",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "cart"]
+                }
+              }
+            },
+            {
+              "name": "4. Create Order",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"userId\": 1, \"items\": [{\"productId\": 1, \"quantity\": 2, \"price\": 25.00}], \"deliveryAddress\": \"Test Address\", \"phoneNumber\": \"9999999999\", \"paymentMethod\": \"COD\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/orders",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "orders"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('Executing request to:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "// Log response for debugging",
+          "if (pm.response.code !== 200) {",
+          "    console.log('Response:', pm.response.json());",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://pharmacy-api-va75.onrender.com",
+      "type": "string",
+      "description": "Production URL (Render). For local: http://localhost:9001"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT token (auto-populated after login)"
+    },
+    {
+      "key": "sessionId",
+      "value": "test-session-{{$randomUUID}}",
+      "type": "string",
+      "description": "Session ID for cart operations"
+    },
+    {
+      "key": "testPhone",
+      "value": "9999999999",
+      "type": "string",
+      "description": "Test phone number"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string",
+      "description": "Current user ID"
+    },
+    {
+      "key": "lastOTP",
+      "value": "",
+      "type": "string",
+      "description": "Last OTP received"
+    },
+    {
+      "key": "lastOrderId",
+      "value": "",
+      "type": "string",
+      "description": "Last created order ID"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/models/product_models/all_product.dart';
+import '../../../../data/models/product_models/all_product.dart';
 import '../../../../data/data_source.dart';
 import '../../common/utils/common_appbar.dart';
 import '../../product/pages/product_details_screen.dart';

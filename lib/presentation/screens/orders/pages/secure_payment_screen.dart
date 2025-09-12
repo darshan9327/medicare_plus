@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/models/order_models/create_order.dart';
+import '../../../../data/models/order_models/create_order.dart';
 import '../../common/utils/common_appbar.dart';
 import '../../common/utils/size_config.dart';
 import '../widgets/secure_payment_widget/payment_amount.dart';

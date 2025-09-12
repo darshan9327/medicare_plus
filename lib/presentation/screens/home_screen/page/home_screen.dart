@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/models/product_models/all_product.dart';
-import '../../../../core/models/product_models/categories.dart';
+import '../../../../data/models/product_models/all_product.dart';
+import '../../../../data/models/product_models/categories.dart';
 import '../../../../data/data_source.dart';
 import '../../product/pages/product_details_screen.dart';
 import '../../search/widgets/search_bar.dart';

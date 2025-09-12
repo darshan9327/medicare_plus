@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/models/product_models/search_product.dart';
+import '../../../../data/models/product_models/search_product.dart';
 import '../../../../data/data_source.dart';
 import '../../product/pages/product_details_screen.dart';
 import '../widgets/filter_button.dart';

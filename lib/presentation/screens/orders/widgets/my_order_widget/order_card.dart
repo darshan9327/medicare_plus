@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medicare_plus/presentation/screens/common/widgets/common_container.dart';
-import '../../../../../core/models/user_models/get_user_orders.dart';
+import '../../../../../data/models/user_models/get_user_orders.dart';
 import 'order_action_button.dart';
 
 class OrderCard extends StatelessWidget {

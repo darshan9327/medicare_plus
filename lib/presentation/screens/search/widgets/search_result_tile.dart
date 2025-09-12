@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/product_models/search_product.dart';
+import '../../../../data/models/product_models/search_product.dart';
 import '../../common/utils/size_config.dart';
 
 class SearchResultTile extends StatelessWidget {

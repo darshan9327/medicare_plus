@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/models/authentication_models/login.dart';
 import '../data_source.dart';
 
-
 class LoginController extends GetxController {
   final DataSource api = DataSource();
 
@@ -20,8 +19,7 @@ class LoginController extends GetxController {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool("isLoggedIn", true);
         await prefs.setString("token", result.data?.token ?? "");
-
-        return true; // success
+        return true;
       } else {
         Get.snackbar("Error", result.message ?? "Login failed ❌", snackPosition: SnackPosition.BOTTOM);
         return false;

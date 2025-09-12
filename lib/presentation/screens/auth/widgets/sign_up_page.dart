@@ -33,7 +33,11 @@ class _SignupFormState extends State<SignupForm> {
 
   Future<void> _loadUserDetails() async {
     final userId = await SessionManager.getUserId();
-    setState(() => _userId = userId);
+    final phone = await SessionManager.getUserPhone();
+    setState(() {
+      _userId = userId;
+      _mobileNo.text = phone ?? "";
+    });
   }
 
   Future<void> _updateUser() async {
@@ -96,7 +100,7 @@ class _SignupFormState extends State<SignupForm> {
             CommonTextFormField(
               controller: _mobileNo,
               hintText: "+91 98765 43210",
-              readonly: true, // mobile comes from OTP, should not change
+              readonly: true,
             ),
             const SizedBox(height: 20),
 

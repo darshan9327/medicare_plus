@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/models/product_models/categories.dart';
+import '../../../../data/models/product_models/categories.dart';
 import 'category_medicine_screen.dart';
 
 class CategoryGrid extends StatelessWidget {

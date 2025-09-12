@@ -131,11 +131,13 @@ class _LoginFormState extends State<LoginForm> {
                         }
                         await SessionManager.saveSessionId(response.token ?? "");
                         await SessionManager.saveUserId(response.user!.id);
+                        await SessionManager.saveUserPhone(_mobileNo.text.trim());
 
                         if ((response.user?.name ?? "").isEmpty) {
                           widget.onGoToSignup?.call();
                         } else {
-                          await SessionManager.setLoggedIn(true);
+                          await SessionManager.setLoggedIn
+                            (true);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content: Text(response.message ?? "Login successful"),

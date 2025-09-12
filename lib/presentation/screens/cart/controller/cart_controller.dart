@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import '../../../../core/models/cart_models/add_to_cart.dart';
-import '../../../../core/models/cart_models/get_cart.dart';
-import '../../../../core/models/cart_models/update_cart.dart';
-import '../../../../core/models/cart_models/remove_from_cart.dart';
-import '../../../../core/models/cart_models/clear_cart.dart';
+import '../../../../data/models/cart_models/add_to_cart.dart';
+import '../../../../data/models/cart_models/get_cart.dart';
+import '../../../../data/models/cart_models/update_cart.dart';
+import '../../../../data/models/cart_models/remove_from_cart.dart';
+import '../../../../data/models/cart_models/clear_cart.dart';
 import '../../../../data/data_source.dart';
 
 class CartItem {

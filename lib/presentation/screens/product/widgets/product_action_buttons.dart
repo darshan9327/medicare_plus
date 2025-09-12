@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/models/product_models/product_by_id.dart';
+import '../../../../data/models/product_models/product_by_id.dart';
 import '../../cart/controller/cart_controller.dart';
 import '../../common/widgets/common_container.dart';
 import '../../upload_prescription/page/upload_prescription_screen.dart';

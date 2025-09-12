@@ -1,30 +1,31 @@
 import 'package:dio/dio.dart';
 
 import '../core/api_constants.dart';
-import '../core/models/user_models/create_user.dart';
 import '../core/session_manager.dart';
-import '../core/models/authentication_models/login.dart';
-import '../core/models/authentication_models/register.dart';
-import '../core/models/authentication_models/send_otp.dart';
-import '../core/models/authentication_models/verify_otp.dart';
 
-import '../core/models/product_models/all_product.dart';
-import '../core/models/product_models/product_by_id.dart';
-import '../core/models/product_models/search_product.dart';
-import '../core/models/product_models/categories.dart';
+import '../data/models/authentication_models/login.dart';
+import '../data/models/authentication_models/register.dart';
+import '../data/models/authentication_models/send_otp.dart';
+import '../data/models/authentication_models/verify_otp.dart';
 
-import '../core/models/cart_models/get_cart.dart';
-import '../core/models/cart_models/add_to_cart.dart';
-import '../core/models/cart_models/update_cart.dart';
-import '../core/models/cart_models/remove_from_cart.dart';
-import '../core/models/cart_models/clear_cart.dart';
+import '../data/models/product_models/all_product.dart';
+import '../data/models/product_models/product_by_id.dart';
+import '../data/models/product_models/search_product.dart';
+import '../data/models/product_models/categories.dart';
 
-import '../core/models/order_models/create_order.dart';
-import '../core/models/order_models/get_order_by_id.dart';
-import '../core/models/user_models/get_user_by_id.dart';
+import '../data/models/cart_models/get_cart.dart';
+import '../data/models/cart_models/add_to_cart.dart';
+import '../data/models/cart_models/update_cart.dart';
+import '../data/models/cart_models/remove_from_cart.dart';
+import '../data/models/cart_models/clear_cart.dart';
 
-import '../core/models/user_models/update_user.dart';
-import '../core/models/user_models/get_user_orders.dart';
+import '../data/models/order_models/create_order.dart';
+import '../data/models/order_models/get_order_by_id.dart';
+
+import '../data/models/user_models/update_user.dart';
+import '../data/models/user_models/create_user.dart';
+import '../data/models/user_models/get_user_by_id.dart';
+import '../data/models/user_models/get_user_orders.dart';
 
 class DataSource {
   late final Dio dio;
@@ -33,11 +34,10 @@ class DataSource {
     dio = Dio(
         BaseOptions(
         baseUrl: ApiConstants.baseurl,
-        connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 20)
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30)
         )
     );
-
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -56,7 +56,6 @@ class DataSource {
   login({required String phone, required String password}) async {
     try {
       final response = await dio.post('/api/v1/auth/login', data: {'phone': phone, 'password': password});
-
       return LoginModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception("Failed to login: ${e.response?.data ?? e.message}");
@@ -68,7 +67,6 @@ class DataSource {
   Future<RegisterModel> register({required String name, required String phone, required String email, required String password}) async {
     try {
       final response = await dio.post('/api/v1/auth/register', data: {'name': name, 'phone': phone, 'email': email, 'password': password});
-
       return RegisterModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception("Failed to register: ${e.response?.data ?? e.message}");
@@ -80,7 +78,6 @@ class DataSource {
   Future<SendOtpModel> sendOtp({required String phone}) async {
     try {
       final response = await dio.post('/api/v1/auth/send-otp', data: {'phone': phone});
-
       return SendOtpModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to send OTP: $e');
@@ -105,19 +102,15 @@ class DataSource {
       final verifyOtpResponse = VerifyOtpResponse.fromJson(response.data);
 
       if (verifyOtpResponse.success) {
-        // Save token if needed
         if (verifyOtpResponse.token != null) {
           await SessionManager.saveSessionId(verifyOtpResponse.token!);
           print("🔑 Token saved: ${verifyOtpResponse.token}");
         }
-
-        // Save userId for future API calls
         if (verifyOtpResponse.user != null) {
           await SessionManager.saveUserId(verifyOtpResponse.user!.id);
           print("👤 UserId saved: ${verifyOtpResponse.user!.id}");
         }
       }
-
       return verifyOtpResponse;
     } catch (e) {
       throw Exception("Failed to verify OTP: $e");
@@ -190,7 +183,6 @@ class DataSource {
   Future<GetCartModel> getCart() async {
     try {
       final sessionId = await SessionManager.getSessionId();
-
       final response = await dio.get(
         "/api/v1/cart",
         options: Options(
@@ -228,7 +220,6 @@ class DataSource {
       if (sessionId != null && sessionId.isNotEmpty) {
         await SessionManager.saveSessionId(sessionId);
       }
-
       return AddToCartModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception("Failed to add to cart: ${e.response?.data ?? e.message}");
@@ -270,7 +261,6 @@ class DataSource {
           },
         ),
       );
-
       return RemoveFromCartModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception("Failed to remove from cart: ${e.response?.data ?? e.message}");
@@ -294,7 +284,6 @@ class DataSource {
           },
         ),
       );
-
       return ClearCartModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception("Failed to clear cart: ${e.response?.data ?? e.message}");
@@ -333,7 +322,6 @@ class DataSource {
           "address": address,
         },
       );
-
       return UpdateUserResponse.fromJson(response.data);
     } catch (e) {
       throw Exception("Failed to update user: $e");
@@ -360,7 +348,6 @@ class DataSource {
           "password": password,
         },
       );
-
       return CreateUserResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(
@@ -385,7 +372,6 @@ class DataSource {
           "limit": limit,
         },
       );
-
       return OrdersResponse.fromJson(response.data ?? {});
     } on DioException catch (e) {
       throw Exception("Failed to fetch user orders: ${e.response?.data ?? e.message}");
@@ -398,19 +384,27 @@ class DataSource {
 
   Future<CreateOrderResponse> createOrder(Map<String, dynamic> body) async {
     try {
-      final response = await dio.post("/api/v1/orders", data: body);
-
+      final sessionId = await SessionManager.getSessionId();
+      final response = await dio.post(
+        "/api/v1/orders",
+        data: body,
+        options: Options(
+          headers: {
+            "x-session-id": sessionId,
+          },
+        ),
+      );
       return CreateOrderResponse.fromJson(response.data);
     } catch (e) {
       rethrow;
     }
   }
- // ===================== Get Order by Id =====================//
+
+  // ===================== Get Order by Id =====================//
 
   Future<OrdersListResponse> getOrderById(int lastOrderId) async {
     try {
       final response = await dio.get("/api/v1/orders/$lastOrderId");
-
       if (response.statusCode == 200 && response.data != null) {
         return OrdersListResponse.fromJson(response.data);
       } else {

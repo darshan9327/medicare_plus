@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/product_models/all_product.dart';
+import '../../../../data/models/product_models/all_product.dart';
 
 class MedicineList extends StatelessWidget {
   final List<Data> medicines;
